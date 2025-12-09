@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人主页 - AI 增强版</title>
+    <!-- 引入图标库 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* =========================================
+           CSS 样式表：拟态风格 (Neumorphism)
+           ========================================= */
+        :root {
+            --bg-color: #e0e5ec;
+            --text-main: #4a4a4a;
+            --text-sub: #8d97a5;
+            --shadow-light: #ffffff;
+            --shadow-dark: #a3b1c6;
+            --accent-color: #6d5dfc;
+            --card-radius: 30px;
+            --transition: all 0.4s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #292d3e;
+            --text-main: #e0e6ed;
+            --text-sub: #a0a7b5;
+            --shadow-light: #3e445e;
+            --shadow-dark: #1b1e2a;
+            --accent-color: #2196f3;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: var(--bg-color); color: var(--text-main); display: flex; justify-content: center; align-items: center; min-height: 100vh; transition: var(--transition); overflow-x: hidden; padding: 20px; }
+        
+        /* 核心容器 */
+        .container { width: 100%; max-width: 420px; background-color: var(--bg-color); border-radius: var(--card-radius); box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light); padding: 40px 30px; display: flex; flex-direction: column; align-items: center; position: relative; transition: var(--transition); }
+        
+        /* 顶部栏 */
+        .top-bar { width: 100%; display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .clock { font-size: 0.9rem; color: var(--text-sub); font-weight: 500; letter-spacing: 1px; }
+        .theme-toggle { width: 40px; height: 40px; border-radius: 50%; display: flex; justify-content: center; align-items: center; color: var(--text-sub); cursor: pointer; background-color: var(--bg-color); box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); transition: var(--transition); }
+        .theme-toggle:active { box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light); color: var(--accent-color); }
+        
+        /* 头像 */
+        .avatar-box { width: 140px; height: 140px; border-radius: 50%; padding: 8px; background-color: var(--bg-color); box-shadow: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light); margin-bottom: 25px; position: relative; }
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; border: 3px solid var(--bg-color); }
+        .status-dot { position: absolute; bottom: 10px; right: 10px; width: 18px; height: 18px; background-color: #00e676; border-radius: 50%; border: 3px solid var(--bg-color); box-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        
+        /* 信息区 */
+        .info { text-align: center; width: 100%; }
+        .name { font-size: 1.8rem; font-weight: 700; margin-bottom: 10px; color: var(--text-main); }
+        .bio { font-size: 0.95rem; color: var(--text-sub); margin-bottom: 30px; height: 24px; display: flex; justify-content: center; align-items: center; }
+        .cursor { display: inline-block; width: 2px; height: 1.2em; background-color: var(--accent-color); margin-left: 2px; animation: blink 1s infinite; }
+        
+        /* 按钮网格 */
+        .action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; width: 100%; margin-bottom: 30px; }
+        .neumorphic-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 90px; border-radius: 15px; color: var(--text-sub); text-decoration: none; background-color: var(--bg-color); box-shadow: 6px 6px 10px var(--shadow-dark), -6px -6px 10px var(--shadow-light); transition: var(--transition); position: relative; overflow: hidden; border: none; outline: none; cursor: pointer; }
+        .neumorphic-btn i { font-size: 1.5rem; margin-bottom: 8px; transition: transform 0.3s; }
+        .neumorphic-btn span { font-size: 0.8rem; font-weight: 500; }
+        .neumorphic-btn:hover { transform: translateY(-2px); color: var(--accent-color); }
+        .neumorphic-btn:active { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); transform: translateY(0); }
+        
+        /* 长按钮 */
+        .wide-actions { width: 100%; display: flex; flex-direction: column; gap: 20px; }
+        .wide-btn { display: flex; align-items: center; justify-content: space-between; padding: 18px 25px; border-radius: 15px; color: var(--text-main); text-decoration: none; background-color: var(--bg-color); box-shadow: 6px 6px 10px var(--shadow-dark), -6px -6px 10px var(--shadow-light); transition: var(--transition); cursor: pointer; border: none; }
+        .wide-btn:hover { color: var(--accent-color); transform: translateX(5px); }
+        .wide-btn:active { box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); transform: translateX(0); }
+        .wide-btn-icon { display: flex; align-items: center; gap: 15px; }
+        .wide-btn-icon i { width: 30px; text-align: center; }
+        
+        /* 模态框 (AI 聊天) */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.show { display: flex; opacity: 1; }
+        .modal-content { width: 90%; max-width: 400px; height: 80vh; max-height: 600px; background-color: var(--bg-color); border-radius: var(--card-radius); box-shadow: 9px 9px 16px var(--shadow-dark), -9px -9px 16px var(--shadow-light); display: flex; flex-direction: column; padding: 20px; position: relative; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .modal-overlay.show .modal-content { transform: scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .modal-title { font-size: 1.1rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .modal-controls { display: flex; gap: 10px; }
+        
+        /* 小图标按钮 */
+        .icon-btn { width: 30px; height: 30px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; color: var(--text-sub); box-shadow: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light); transition: all 0.2s; }
+        .icon-btn:active { box-shadow: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light); }
+        
+        /* 设置面板 */
+        .settings-panel { position: absolute; top: 60px; left: 20px; right: 20px; background: var(--bg-color); padding: 20px; border-radius: 15px; box-shadow: 5px 5px 15px var(--shadow-dark), -5px -5px 15px var(--shadow-light); z-index: 10; display: none; opacity: 0; transform: translateY(-10px); transition: all 0.3s ease; }
+        .settings-panel.show { display: block; opacity: 1; transform: translateY(0); }
+        .settings-group { margin-bottom: 15px; }
+        .settings-label { display: block; margin-bottom: 5px; font-size: 0.85rem; color: var(--text-sub); font-weight: bold; }
+        .settings-input, .settings-select { width: 100%; padding: 10px; border-radius: 10px; border: none; background: var(--bg-color); box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); color: var(--text-main); font-family: inherit; outline: none; }
+        .save-btn { width: 100%; padding: 10px; border-radius: 10px; background: var(--accent-color); color: #fff; border: none; font-weight: bold; cursor: pointer; box-shadow: 3px 3px 6px rgba(0,0,0,0.2); transition: all 0.2s; }
+        .save-btn:active { transform: scale(0.98); }
+
+        /* 聊天区域 */
+        .chat-box { flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 15px; margin-bottom: 15px; scrollbar-width: thin; }
+        .chat-message { max-width: 80%; padding: 10px 15px; border-radius: 15px; font-size: 0.9rem; line-height: 1.4; position: relative; word-wrap: break-word; }
+        .chat-message.ai { align-self: flex-start; background-color: var(--bg-color); color: var(--text-main); border-bottom-left-radius: 2px; box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light); }
+        .chat-message.user { align-self: flex-end; background-color: var(--accent-color); color: #fff; border-bottom-right-radius: 2px; box-shadow: 3px 3px 8px rgba(0,0,0,0.2); }
+        .chat-message.system { align-self: center; background-color: transparent; color: var(--text-sub); font-size: 0.8rem; box-shadow: none; text-align: center; max-width: 100%; }
+        
+        /* 聊天图片样式 */
+        .chat-image { max-width: 100%; border-radius: 10px; margin-top: 5px; display: block; }
+
+        /* 输入区域 */
+        .chat-input-area { display: flex; gap: 10px; align-items: center; }
+        .chat-input { flex: 1; padding: 12px 15px; border-radius: 25px; border: none; background-color: var(--bg-color); color: var(--text-main); box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light); outline: none; }
+        
+        .action-btn { width: 45px; height: 45px; border-radius: 50%; background-color: var(--bg-color); color: var(--text-sub); display: flex; justify-content: center; align-items: center; cursor: pointer; border: none; box-shadow: 6px 6px 10px var(--shadow-dark), -6px -6px 10px var(--shadow-light); transition: all 0.2s ease; }
+        .action-btn:active { box-shadow: inset 3px 3px 6px var(--shadow-dark), inset -3px -3px 6px var(--shadow-light); transform: scale(0.95); }
+        .action-btn.send { color: var(--accent-color); }
+
+        /* 图片预览区 */
+        .file-preview-area {
+            display: none;
+            padding: 10px;
+            background: var(--bg-color);
+            border-radius: 15px;
+            margin-bottom: 10px;
+            position: relative;
+            box-shadow: inset 2px 2px 5px var(--shadow-dark), inset -2px -2px 5px var(--shadow-light);
+        }
+        .file-preview-img { height: 60px; border-radius: 8px; border: 2px solid var(--bg-color); box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
+        .remove-file-btn { position: absolute; top: 5px; left: 65px; background: #ff5252; color: white; width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 12px; }
+        
+        .typing-indicator { display: flex; gap: 4px; padding: 5px 10px; }
+        .typing-dot { width: 6px; height: 6px; background-color: var(--text-sub); border-radius: 50%; animation: bounce 1.4s infinite ease-in-out both; }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        .footer { margin-top: 40px; font-size: 0.75rem; color: var(--text-sub); opacity: 0.7; }
+        
+        @media (max-width: 380px) { .container { padding: 30px 20px; } .action-grid { gap: 15px; } .neumorphic-btn { height: 80px; } }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- 顶部工具栏 -->
+        <div class="top-bar">
+            <div class="clock" id="clock">00:00</div>
+            <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+                <i class="fas fa-moon"></i>
+            </div>
+        </div>
+
+        <!-- 头像区 -->
+        <div class="avatar-box">
+            <!-- 自动获取QQ头像 -->
+            <img src="https://q1.qlogo.cn/g?b=qq&nk=2433993490&s=640" alt="User Avatar" onerror="this.src='https://via.placeholder.com/150'">
+            <div class="status-dot"></div>
+        </div>
+
+        <!-- 个人信息 -->
+        <div class="info">
+            <h1 class="name">你好, 我是 jjj</h1>
+            <div class="bio">
+                <span id="typing-text"></span><span class="cursor"></span>
+            </div>
+        </div>
+
+        <!-- 快捷入口 -->
+        <div class="action-grid">
+            <a href="https://github.com/2433993490/zhuye" target="_blank" class="neumorphic-btn">
+                <i class="fab fa-github"></i>
+                <span>GitHub</span>
+            </a>
+            <button onclick="copyWechat()" class="neumorphic-btn">
+                <i class="fab fa-weixin"></i>
+                <span>微信</span>
+            </button>
+            <button onclick="handleQQClick()" class="neumorphic-btn">
+                <i class="fab fa-qq"></i>
+                <span>QQ</span>
+            </button>
+            <button onclick="copyEmail()" class="neumorphic-btn">
+                <i class="fas fa-envelope"></i>
+                <span>邮件</span>
+            </button>
+        </div>
+
+        <!-- 功能列表 -->
+        <div class="wide-actions">
+            <!-- ✨ AI 助手入口 ✨ -->
+            <button onclick="openAIModal()" class="wide-btn" style="border: 2px solid transparent; background-clip: padding-box;">
+                <div class="wide-btn-icon">
+                    <i class="fas fa-robot" style="color: var(--accent-color);"></i>
+                    <span style="font-weight: bold;">✨ 召唤 AI 助手</span>
+                </div>
+                <i class="fas fa-chevron-right" style="font-size: 0.8rem;"></i>
+            </button>
+
+            <a href="https://github.com?tab=repositories" target="_blank" class="wide-btn">
+                <div class="wide-btn-icon">
+                    <i class="fas fa-laptop-code"></i>
+                    <span>我的项目</span>
+                </div>
+                <i class="fas fa-chevron-right" style="font-size: 0.8rem;"></i>
+            </a>
+            
+            <a href="https://www.jjj.ad" target="_blank" class="wide-btn">
+                <div class="wide-btn-icon">
+                    <i class="fas fa-pen-nib"></i>
+                    <span>博客文章</span>
+                </div>
+                <i class="fas fa-chevron-right" style="font-size: 0.8rem;"></i>
+            </a>
+
+            <a href="https://www.emby.su" target="_blank" class="wide-btn">
+                <div class="wide-btn-icon">
+                    <i class="fas fa-film"></i>
+                    <span>Emby</span>
+                </div>
+                <i class="fas fa-play" style="font-size: 0.7rem;"></i>
+            </a>
+        </div>
+
+        <div class="footer">
+            © 2025 个人主页
+        </div>
+    </div>
+
+    <!-- AI 聊天模态框 -->
+    <div id="aiModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <i class="fas fa-sparkles" style="color: var(--accent-color);"></i>
+                    jjj 的 AI 分身
+                </div>
+                <div class="modal-controls">
+                    <!-- 设置按钮 -->
+                    <div class="icon-btn" onclick="toggleSettings()" title="设置 API">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <!-- 关闭按钮 -->
+                    <div class="icon-btn" onclick="closeAIModal()" title="关闭">
+                        <i class="fas fa-times"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 设置面板 (默认隐藏) -->
+            <div id="settingsPanel" class="settings-panel">
+                <div class="settings-group">
+                    <label class="settings-label">连接模式</label>
+                    <select id="modeSelect" class="settings-select" onchange="handleModeChange()">
+                        <option value="default">🔗 默认线路 (站长提供/免费)</option>
+                        <option value="custom">🔑 自定义 API (使用自己的 Key)</option>
+                    </select>
+                </div>
+
+                <!-- 自定义配置区域 (仅自定义模式显示) -->
+                <div id="customConfigArea" style="display: none;">
+                    <div class="settings-group">
+                        <label class="settings-label">服务商快捷预设</label>
+                        <select id="providerPreset" class="settings-select" onchange="applyPreset()">
+                            <option value="deepseek">DeepSeek (深度求索)</option>
+                            <option value="openai">OpenAI (GPT-3.5/4)</option>
+                            <option value="kimi">Kimi (月之暗面)</option>
+                            <option value="gemini">Google Gemini</option>
+                            <option value="custom">手动输入...</option>
+                        </select>
+                    </div>
+
+                    <div class="settings-group">
+                        <label class="settings-label">API 接口地址 (Base URL)</label>
+                        <input type="text" id="baseUrlInput" class="settings-input" placeholder="例如 https://api.deepseek.com">
+                    </div>
+
+                    <div class="settings-group">
+                        <label class="settings-label">API 密钥 (Key)</label>
+                        <input type="password" id="apiKeyInput" class="settings-input" placeholder="sk-xxxxxxxx">
+                    </div>
+
+                    <div class="settings-group">
+                        <label class="settings-label">模型名称 (Model)</label>
+                        <input type="text" id="modelInput" class="settings-input" placeholder="deepseek-chat">
+                    </div>
+                </div>
+
+                <button class="save-btn" onclick="saveSettings()">保存配置</button>
+            </div>
+            
+            <div id="chatBox" class="chat-box">
+                <div class="chat-message ai">
+                    你好呀！我是 jjj 的 AI 数字分身。✨<br>
+                    随便聊聊吧！<br>
+                    (如需发送图片，请点击左下角📎图标)
+                </div>
+            </div>
+
+            <!-- 图片预览区 -->
+            <div id="filePreview" class="file-preview-area">
+                <img id="previewImg" class="file-preview-img" src="" alt="预览">
+                <div class="remove-file-btn" onclick="clearFileSelection()">×</div>
+            </div>
+
+            <!-- 底部输入栏 -->
+            <div class="chat-input-area">
+                <!-- 文件选择按钮 -->
+                <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="handleFileSelect()">
+                <button class="action-btn" onclick="document.getElementById('fileInput').click()" title="上传图片">
+                    <i class="fas fa-paperclip"></i>
+                </button>
+
+                <input type="text" id="userInput" class="chat-input" placeholder="输入问题..." onkeypress="handleEnter(event)">
+                
+                <button class="action-btn send" onclick="sendMessage()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // ⚙️ 后台接口地址 (默认 PHP 代理)
+        // ==========================================
+        const DEFAULT_API_ENDPOINT = "./chat.php"; 
+
+        // 1. 时钟功能
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // 2. 主题切换
+        function toggleTheme() {
+            const body = document.body;
+            const toggleBtn = document.getElementById('themeToggle');
+            const icon = toggleBtn.querySelector('i');
+            const isDark = body.getAttribute('data-theme') === 'dark';
+            if (isDark) {
+                body.removeAttribute('data-theme');
+                icon.className = 'fas fa-moon';
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                icon.className = 'fas fa-sun';
+            }
+        }
+
+        // 3. 辅助功能 (复制 & 跳转)
+        function copyToClipboard(text, type) {
+            const tempInput = document.createElement("input");
+            tempInput.value = text;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            tempInput.setSelectionRange(0, 99999);
+            try {
+                document.execCommand("copy");
+                alert(`${type} ${text} 已复制到剪贴板！`);
+            } catch (err) {
+                alert(`复制失败，请手动复制: ${text}`);
+            }
+            document.body.removeChild(tempInput);
+        }
+        function copyEmail() { copyToClipboard("admin@jjj.ad", "邮箱"); }
+        function copyWechat() { copyToClipboard("q2433993490", "微信号"); }
+        function handleQQClick() {
+            const qq = "2433993490";
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                window.location.href = `mqqwpa://im/chat?chat_type=wpa&uin=${qq}&version=1&src_type=web`;
+                setTimeout(() => alert("如果未自动跳转，请尝试手动添加QQ: " + qq), 2000);
+            } else {
+                window.location.href = `tencent://message/?uin=${qq}&Site=Sambow&Menu=yes`;
+            }
+        }
+
+        // 4. 打字机效果
+        const texts = ["常记溪亭日暮，沉醉不知归路。", "兴尽晚回舟，误入藕花深处。", "争渡，争渡，惊起一滩鸥鹭。", "欢迎来到我的主页"];
+        let count = 0;
+        let index = 0;
+        let currentText = "";
+        let letter = "";
+        (function type() {
+            if (count === texts.length) { count = 0; }
+            currentText = texts[count];
+            letter = currentText.slice(0, ++index);
+            document.getElementById('typing-text').textContent = letter;
+            if (letter.length === currentText.length) {
+                setTimeout(() => { count++; index = 0; setTimeout(type, 2000); }, 100);
+            } else {
+                setTimeout(type, 150);
+            }
+        })();
+
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            toggleTheme();
+        }
+
+        // ==========================================
+        // ✨ AI 聊天逻辑 (支持 Default Proxy, Custom API 和 图片上传)
+        // ==========================================
+        const modal = document.getElementById('aiModal');
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const fileInput = document.getElementById('fileInput');
+        const filePreview = document.getElementById('filePreview');
+        const previewImg = document.getElementById('previewImg');
+
+        // 用户配置状态
+        let userConfig = {
+            mode: 'default', // default | custom
+            provider: 'deepseek',
+            baseUrl: '',
+            apiKey: '',
+            model: ''
+        };
+
+        // 当前选中的文件 Base64
+        let currentFileBase64 = null;
+        let currentFileMime = null;
+
+        // 预设配置数据
+        const PRESETS = {
+            deepseek: { url: "https://api.deepseek.com", model: "deepseek-chat" }, // 注意：DeepSeek官方暂不支持Vision
+            openai: { url: "https://api.openai.com/v1", model: "gpt-4o" },
+            kimi: { url: "https://api.moonshot.cn/v1", model: "moonshot-v1-8k" },
+            gemini: { url: "https://generativelanguage.googleapis.com", model: "gemini-1.5-flash" }
+        };
+
+        // 加载配置
+        function loadSettings() {
+            const saved = localStorage.getItem('ai_config_v2');
+            if (saved) {
+                userConfig = JSON.parse(saved);
+            }
+            
+            // 填充 UI
+            document.getElementById('modeSelect').value = userConfig.mode;
+            document.getElementById('providerPreset').value = userConfig.provider || 'custom';
+            document.getElementById('baseUrlInput').value = userConfig.baseUrl || '';
+            document.getElementById('apiKeyInput').value = userConfig.apiKey || '';
+            document.getElementById('modelInput').value = userConfig.model || '';
+            
+            handleModeChange();
+        }
+
+        // 保存配置
+        function saveSettings() {
+            userConfig.mode = document.getElementById('modeSelect').value;
+            userConfig.provider = document.getElementById('providerPreset').value;
+            userConfig.baseUrl = document.getElementById('baseUrlInput').value.replace(/\/$/, ''); // 去除末尾斜杠
+            userConfig.apiKey = document.getElementById('apiKeyInput').value.trim();
+            userConfig.model = document.getElementById('modelInput').value.trim();
+
+            localStorage.setItem('ai_config_v2', JSON.stringify(userConfig));
+            toggleSettings();
+            
+            const modeText = userConfig.mode === 'default' ? "默认线路" : "自定义线路";
+            addMessage(`配置已保存！当前使用：${modeText}`, 'system');
+        }
+
+        // UI: 切换面板显隐
+        function toggleSettings() {
+            settingsPanel.classList.toggle('show');
+            if(settingsPanel.classList.contains('show')) {
+                loadSettings();
+            }
+        }
+
+        // UI: 处理模式切换 (Default/Custom)
+        function handleModeChange() {
+            const mode = document.getElementById('modeSelect').value;
+            const customArea = document.getElementById('customConfigArea');
+            if (mode === 'custom') {
+                customArea.style.display = 'block';
+            } else {
+                customArea.style.display = 'none';
+            }
+        }
+
+        // UI: 应用预设 (DeepSeek/OpenAI/etc)
+        function applyPreset() {
+            const provider = document.getElementById('providerPreset').value;
+            if (PRESETS[provider]) {
+                document.getElementById('baseUrlInput').value = PRESETS[provider].url;
+                document.getElementById('modelInput').value = PRESETS[provider].model;
+            }
+        }
+
+        function openAIModal() {
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+            userInput.focus();
+            loadSettings(); // 确保加载最新配置
+        }
+
+        function closeAIModal() {
+            modal.classList.remove('show');
+            settingsPanel.classList.remove('show');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeAIModal();
+        });
+
+        function handleEnter(e) { if (e.key === 'Enter') sendMessage(); }
+
+        // --- 文件处理逻辑 ---
+        function handleFileSelect() {
+            const file = fileInput.files[0];
+            if (!file) return;
+
+            // 限制为图片
+            if (!file.type.startsWith('image/')) {
+                alert("目前仅支持上传图片格式 (JPG, PNG, WebP)");
+                fileInput.value = '';
+                return;
+            }
+
+            // 读取文件
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentFileBase64 = e.target.result; // data:image/jpeg;base64,...
+                currentFileMime = file.type;
+                
+                // 显示预览
+                previewImg.src = currentFileBase64;
+                filePreview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function clearFileSelection() {
+            fileInput.value = '';
+            currentFileBase64 = null;
+            currentFileMime = null;
+            filePreview.style.display = 'none';
+        }
+
+        // --- 消息显示 ---
+        function addMessage(text, sender, imageUrl = null) {
+            const msgDiv = document.createElement('div');
+            msgDiv.classList.add('chat-message', sender);
+            
+            let contentHtml = text.replace(/\n/g, '<br>');
+            
+            // 如果有图片，显示在文本上方
+            if (imageUrl) {
+                contentHtml = `<img src="${imageUrl}" class="chat-image"><br>` + contentHtml;
+            }
+            
+            msgDiv.innerHTML = contentHtml;
+            chatBox.appendChild(msgDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function showLoading() {
+            const loader = document.createElement('div');
+            loader.id = 'ai-loader';
+            loader.classList.add('chat-message', 'ai');
+            loader.innerHTML = `<div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>`;
+            chatBox.appendChild(loader);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function removeLoading() {
+            const loader = document.getElementById('ai-loader');
+            if (loader) loader.remove();
+        }
+
+        // 系统提示词
+        const systemPrompt = `你是一个运行在 jjj 个人主页上的 AI 助手。请用幽默、热情、友好的语气回答，可使用 emoji ✨。
+        【jjj 的个人档案】：
+        - 职业：前端开发者
+        - 微信/QQ：2433993490 (提醒访客添加)
+        - 博客：https://www.jjj.ad
+        - Emby：https://www.emby.su
+        如果被问及隐私请机智拒绝。`;
+
+        async function sendMessage() {
+            const text = userInput.value.trim();
+            // 如果没有文字也没有图片，则不发送
+            if (!text && !currentFileBase64) return;
+
+            // 检查自定义配置
+            if (userConfig.mode === 'custom' && !userConfig.apiKey) {
+                alert("请点击右上角设置图标，填写您的 API Key！");
+                toggleSettings();
+                return;
+            }
+
+            // 1. 显示用户消息
+            addMessage(text, 'user', currentFileBase64);
+            
+            // 缓存图片数据用于发送，然后清理UI
+            const imgDataToSend = currentFileBase64;
+            const imgMimeToSend = currentFileMime;
+            
+            userInput.value = '';
+            clearFileSelection(); // 清除选择状态
+            showLoading();
+
+            try {
+                let response, data;
+                
+                // === 模式 1: 默认线路 (PHP) ===
+                if (userConfig.mode === 'default') {
+                    // 构建 OpenAI 格式的 Vision Payload (兼容性最好)
+                    let messagesPayload = [];
+                    
+                    if (imgDataToSend) {
+                        // Vision 格式: content 是数组
+                        messagesPayload = [
+                            { role: "system", content: systemPrompt },
+                            { 
+                                role: "user", 
+                                content: [
+                                    { type: "text", text: text || "请分析这张图片" },
+                                    { type: "image_url", image_url: { url: imgDataToSend } }
+                                ]
+                            }
+                        ];
+                    } else {
+                        // 纯文本格式
+                        messagesPayload = [
+                            { role: "system", content: systemPrompt },
+                            { role: "user", content: text }
+                        ];
+                    }
+
+                    response = await fetch(DEFAULT_API_ENDPOINT, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ messages: messagesPayload })
+                    });
+                } 
+                // === 模式 2: 自定义 API ===
+                else {
+                    let endpoint = userConfig.baseUrl;
+                    
+                    // --- Gemini 协议 ---
+                    if (userConfig.provider === 'gemini' || endpoint.includes('goog')) {
+                         if (!endpoint.includes(':generateContent')) {
+                             endpoint = `${endpoint}/v1beta/models/${userConfig.model}:generateContent?key=${userConfig.apiKey}`;
+                         }
+                         
+                         let parts = [];
+                         if (text) parts.push({ text: text });
+                         if (imgDataToSend) {
+                             // 去掉 data:image/png;base64, 前缀
+                             const base64Clean = imgDataToSend.split(',')[1];
+                             parts.push({ 
+                                 inlineData: { 
+                                     mimeType: imgMimeToSend, 
+                                     data: base64Clean 
+                                 } 
+                             });
+                         }
+
+                         response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{ parts: parts }],
+                                systemInstruction: { parts: [{ text: systemPrompt }] }
+                            })
+                        });
+                    } 
+                    // --- OpenAI / DeepSeek / Kimi 协议 ---
+                    else {
+                        if (!endpoint.endsWith('/chat/completions')) {
+                             endpoint = endpoint.replace(/\/$/, '');
+                             if (!endpoint.endsWith('/v1')) endpoint += '/v1';
+                             endpoint += '/chat/completions';
+                        }
+                        
+                        // 某些服务商URL无需/v1
+                        if (userConfig.provider === 'deepseek' && userConfig.baseUrl === 'https://api.deepseek.com') {
+                            endpoint = 'https://api.deepseek.com/chat/completions';
+                        }
+
+                        let msgContent = text;
+                        // 如果有图片，转为 Content Array 格式
+                        if (imgDataToSend) {
+                            msgContent = [
+                                { type: "text", text: text || "图片描述" },
+                                { type: "image_url", image_url: { url: imgDataToSend } }
+                            ];
+                        }
+
+                        response = await fetch(endpoint, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${userConfig.apiKey}`
+                            },
+                            body: JSON.stringify({
+                                model: userConfig.model,
+                                messages: [
+                                    { role: "system", content: systemPrompt },
+                                    { role: "user", content: msgContent }
+                                ],
+                                temperature: 0.7
+                            })
+                        });
+                    }
+                }
+
+                data = await response.json();
+                removeLoading();
+
+                let aiText = "无法连接到 AI 服务。";
+                
+                if (data.error) {
+                    console.error("API Error:", data.error);
+                    aiText = `出错啦: ${data.error.message || JSON.stringify(data.error)}`;
+                } 
+                else if (data.candidates && data.candidates[0]) {
+                    aiText = data.candidates[0].content.parts[0].text;
+                }
+                else if (data.choices && data.choices[0]) {
+                    aiText = data.choices[0].message.content;
+                } else {
+                    aiText = "返回数据格式异常。";
+                }
+
+                addMessage(aiText, 'ai');
+
+            } catch (error) {
+                removeLoading();
+                addMessage(`网络错误: ${error.message}`, 'ai');
+                console.error("Fetch Error:", error);
+            }
+        }
+    </script>
+</body>
+</html>
