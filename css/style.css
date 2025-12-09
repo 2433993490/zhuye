@@ -1,0 +1,160 @@
+/* --- 配置区域 (修改这里即可改变风格) --- */
+:root {
+    /* 核心毛玻璃参数 */
+    --glass-bg: rgba(255, 255, 255, 0.1);    /* 背景色透明度 */
+    --glass-border: rgba(255, 255, 255, 0.4);/* 边框高光颜色 */
+    --backdrop-blur: 20px;                   /* 模糊程度 */
+    --card-radius: 20px;                     /* 圆角大小 */
+    
+    /* 字体颜色 */
+    --text-main: #ffffff;
+    --text-muted: rgba(255, 255, 255, 0.7);
+    
+    /* 背景渐变色 (深空紫风格) */
+    --bg-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+}
+
+/* --- 全局重置 --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', 'PingFang SC', sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background: var(--bg-gradient);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; /* 防止背景动画撑开滚动条 */
+    color: var(--text-main);
+}
+
+/* --- 背景动画光球 --- */
+.bg-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: 0;
+    animation: float 8s infinite alternate;
+}
+.shape-1 { width: 300px; height: 300px; background: #ff00cc; top: -50px; left: -50px; }
+.shape-2 { width: 250px; height: 250px; background: #00d2ff; bottom: 50px; right: -50px; animation-delay: -2s; }
+.shape-3 { width: 150px; height: 150px; background: #8b64fd; bottom: 20%; left: 30%; animation-delay: -4s; }
+
+@keyframes float {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(30px, 40px); }
+}
+
+/* --- 核心玻璃类 (Glass Class) - 可复用 --- */
+.glass-dashboard, .glass-card, .glass-input {
+    background: var(--glass-bg);
+    backdrop-filter: blur(var(--backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--backdrop-blur));
+    border-top: 1px solid var(--glass-border);
+    border-left: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    border-radius: var(--card-radius);
+}
+
+/* --- 布局样式 --- */
+.glass-dashboard {
+    position: relative;
+    z-index: 1;
+    width: 90%;
+    max-width: 1200px;
+    height: 85vh;
+    display: flex;
+    overflow: hidden;
+}
+
+/* 侧边栏 */
+.sidebar {
+    width: 260px;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    border-right: 1px solid rgba(255,255,255,0.1);
+}
+
+.user-info { text-align: center; margin-bottom: 40px; }
+.avatar { 
+    width: 80px; height: 80px; margin: 0 auto 10px; 
+    border-radius: 50%; background: rgba(255,255,255,0.2); 
+    display: flex; align-items: center; justify-content: center; font-size: 30px;
+}
+
+.menu a {
+    display: flex; align-items: center; gap: 15px;
+    padding: 15px; color: var(--text-muted);
+    text-decoration: none; transition: 0.3s;
+    border-radius: 10px; margin-bottom: 5px;
+}
+.menu a:hover, .menu a.active {
+    background: rgba(255,255,255,0.2);
+    color: #fff;
+}
+
+.pro-alert {
+    margin-top: auto; padding: 20px; text-align: center;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+}
+
+/* 右侧内容 */
+.content {
+    flex: 1;
+    padding: 40px;
+    overflow-y: auto; /* 内容过多可滚动 */
+}
+
+header {
+    display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;
+}
+
+.glass-input {
+    border: none; padding: 12px 20px; color: white; outline: none; width: 300px;
+}
+.glass-input::placeholder { color: rgba(255,255,255,0.5); }
+
+/* 卡片网格 */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.glass-card {
+    padding: 25px;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.card-icon {
+    width: 50px; height: 50px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 15px; font-size: 20px;
+}
+
+/* 列表区 */
+.glass-list ul { list-style: none; margin-top: 20px; }
+.glass-list li {
+    display: flex; justify-content: space-between;
+    padding: 15px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+.glass-list li:last-child { border-bottom: none; }
+.time { color: var(--text-muted); font-size: 0.9em; }
+
+/* --- 移动端适配 --- */
+@media (max-width: 768px) {
+    .glass-dashboard { flex-direction: column; height: auto; min-height: 100vh; width: 100%; border-radius: 0;}
+    .sidebar { width: 100%; flex-direction: row; align-items: center; padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); border-right: none;}
+    .user-info, .pro-alert { display: none; }
+    .menu { display: flex; width: 100%; justify-content: space-around; }
+    .menu a span { display: none; }
+    header { flex-direction: column; gap: 20px; align-items: flex-start; }
+    .glass-input { width: 100%; }
+}
